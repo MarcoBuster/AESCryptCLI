@@ -1,34 +1,38 @@
 import argparse
+from getpass import getpass
 
 import crypto
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--in', '--input', dest='input', type=str, help='The input file (or folder)', default='')
-    parser.add_argument('--out', '--output', dest='output', type=str, help='The output file (or folder, optional)',
+    parser.add_argument('-e', '--encrypt', dest='encrypt', help='Encrypt mode', default=False, action='store_true')
+    parser.add_argument('-d', '--decrypt', dest='decrypt', help='Decrypt mode', default=False, action='store_true')
+    parser.add_argument('-i', '--input', dest='input', type=str, help='The input file (or folder)', default='')
+    parser.add_argument('-o', '--output', dest='output', type=str, help='The output file (or folder, optional)',
                         default='')
-    parser.add_argument('--passw', '--pass', '--password', dest='password', type=str, help='The password of the file',
+    parser.add_argument('-p', '--password', dest='password', type=str, help='The password of the file',
                         default='')
-    parser.add_argument('--encrypt', '--en', dest='encrypt', help='Encrypts the file', default=False, const=True,
-                        nargs='?')
-    parser.add_argument('--decrypt', '--de', dest='decrypt', help='Decrypts the file', default=False, const=True,
-                        nargs='?')
 
     args = parser.parse_args()
 
-    if (args.input == '' or args.password == '') or (args.decrypt is False and args.encrypt is False):
+    if not args.input or (not args.decrypt and not args.encrypt):
         print("Invalid arguments.")
         exit(0)
 
-    print(args)
+    if args.password:
+        password = args.password
+    else:
+        password = getpass()
 
-    if args.encrypt is True:
-        if args.output != '':
-            print(crypto.encrypt_file(args.input, args.output, args.password))
+    if args.encrypt:
+        if args.output:
+            print(crypto.encrypt_file(args.input, args.output, password))
         else:
-            print(crypto.encrypt(args.input, args.password))
-    elif args.decrypt is True:
-        if args.output != '':
-            print(crypto.decrypt_file(args.input, args.output, args.password))
+            print(crypto.encrypt(args.input, password))
+    elif args.decrypt:
+        if args.output:
+            print(crypto.decrypt_file(args.input, args.output, password))
         else:
-            print(crypto.decrypt(args.input, args.password))
+            print(crypto.decrypt(args.input, password))
+    else:
+        print("Invalid arguments.")
